@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skills Resource Board</title>
+  <style>
+    :root {
+      --bg: #0f0f11;
+      --surface: #1a1a1f;
+      --border: #2a2a32;
+      --accent: #7c6af7;
+      --accent-soft: #7c6af720;
+      --text: #e8e8f0;
+      --muted: #888899;
+      --hover: #22222a;
+      --badge: #7c6af730;
+      --green: #3ecf8e;
+      --green-soft: #3ecf8e18;
+      --orange: #f59e0b;
+      --orange-soft: #f59e0b18;
+      --blue: #38bdf8;
+      --blue-soft: #38bdf818;
+      --pink: #f472b6;
+      --pink-soft: #f472b618;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 48px 40px 32px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 360px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    #search {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 12px 9px 38px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    #search:focus { border-color: var(--accent); }
+    #search::placeholder { color: var(--muted); }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 5px 14px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab:hover { border-color: var(--accent); color: var(--text); }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 40px 60px;
+    }
+
+    .stats {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    .stats span { color: var(--accent); font-weight: 600; }
+
+    .section { margin-bottom: 44px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .section-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .section-count {
+      background: var(--badge);
+      color: var(--accent);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+    }
+
+    .install-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+
+    .source-badge {
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 5px;
+      padding: 3px 9px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .source-badge.builtin  { color: var(--green);  background: var(--green-soft);  border-color: var(--green)40; }
+    .source-badge.plugin   { color: var(--blue);   background: var(--blue-soft);   border-color: var(--blue)40; }
+    .source-badge.github   { color: var(--orange); background: var(--orange-soft); border-color: var(--orange)40; }
+    .source-badge.local    { color: var(--pink);   background: var(--pink-soft);   border-color: var(--pink)40; }
+
+    .install-cmd {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .install-cmd:hover { border-color: var(--accent); }
+
+    .install-cmd code {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    .install-cmd svg { color: var(--muted); flex-shrink: 0; }
+
+    .gh-link {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .gh-link:hover { color: var(--text); border-color: var(--orange); }
+    .gh-link svg { flex-shrink: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      background: var(--hover);
+    }
+
+    .card-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .card-cmd {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 4px;
+      padding: 2px 6px;
+      display: inline-block;
+      margin-bottom: 8px;
+      cursor: pointer;
+      user-select: all;
+      transition: all 0.15s;
+    }
+
+    .card-cmd:hover { background: var(--accent); color: #fff; }
+
+    .card-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .card-gh {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-gh a {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--orange);
+      font-size: 11px;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.15s;
+    }
+
+    .card-gh a:hover { opacity: 1; }
+
+    .hidden { display: none !important; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state svg { margin-bottom: 16px; opacity: 0.4; }
+    .empty-state p { font-size: 15px; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: #fff;
+      color: #111;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: all 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px #0008;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      header, main { padding-left: 20px; padding-right: 20px; }
+      header { padding-top: 32px; }
+      .grid { grid-template-columns: 1fr; }
+      .install-row { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Skills Resource Board</h1>
+  <p>All installed Claude Code skills — click any command to copy, or use the install links to share with your team.</p>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input id="search" type="text" placeholder="Search skills…" autocomplete="off" />
+    </div>
+    <div class="filter-tabs" id="tabs"></div>
+  </div>
+</header>
+
+<main>
+  <p class="stats" id="stats"></p>
+  <div id="board"></div>
+  <div class="empty-state hidden" id="empty">
+    <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <p>No skills match your search.</p>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COPY_ICON = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+const GH_ICON   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49v-1.71c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1.01.07 1.54 1.06 1.54 1.06.89 1.57 2.34 1.12 2.91.85.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.38 9.38 0 0 1 12 6.84c.85 0 1.7.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .27.18.59.69.49A10.27 10.27 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/></svg>`;
+const LINK_ICON = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+
+// source types: builtin | plugin | github | local
+const data = [
+  {
+    category: "Core / Utility",
+    source: { type: "builtin", label: "Built into Claude Code" },
+    skills: [
+      { name: "Update Config", cmd: "/update-config", desc: "Configure Claude Code settings.json — permissions, hooks, env vars, automated behaviors" },
+      { name: "Keybindings Help", cmd: "/keybindings-help", desc: "Customize keyboard shortcuts and rebind keys in ~/.claude/keybindings.json" },
+      { name: "Simplify", cmd: "/simplify", desc: "Review changed code for reuse, quality, and efficiency, then fix issues found" },
+      { name: "Fewer Permission Prompts", cmd: "/fewer-permission-prompts", desc: "Scan transcripts for common tool calls and add an allowlist to reduce prompts" },
+      { name: "Loop", cmd: "/loop", desc: "Run a prompt or slash command on a recurring interval (e.g. /loop 5m /foo)" },
+      { name: "Schedule", cmd: "/schedule", desc: "Create, update, list, or run scheduled remote agents on a cron schedule" },
+      { name: "Claude API", cmd: "/claude-api", desc: "Build, debug, and optimize Claude API / Anthropic SDK apps with prompt caching" },
+      { name: "Init", cmd: "/init", desc: "Initialize a new project or workspace" },
+      { name: "Review", cmd: "/review", desc: "Review code changes" },
+      { name: "Security Review", cmd: "/security-review", desc: "Audit code for security vulnerabilities" },
+    ]
+  },
+  {
+    category: "Anthropic Skills",
+    source: {
+      type: "plugin",
+      label: "Official plugin",
+      installCmd: "/plugin install skill-creator@claude-plugins-official",
+      note: "Install individual skills via /plugin > Discover"
+    },
+    skills: [
+      { name: "Schedule", cmd: "/anthropic-skills:schedule", desc: "Schedule recurring remote agents" },
+      { name: "Setup Cowork", cmd: "/anthropic-skills:setup-cowork", desc: "Set up collaborative working sessions" },
+      { name: "Consolidate Memory", cmd: "/anthropic-skills:consolidate-memory", desc: "Clean up and consolidate memory files" },
+      { name: "XLSX", cmd: "/anthropic-skills:xlsx", desc: "Work with Excel spreadsheet files" },
+      { name: "PDF", cmd: "/anthropic-skills:pdf", desc: "Read, parse, or generate PDF files" },
+      { name: "DOCX", cmd: "/anthropic-skills:docx", desc: "Work with Word document files" },
+      { name: "PPTX", cmd: "/anthropic-skills:pptx", desc: "Work with PowerPoint presentation files" },
+      { name: "Skill Creator", cmd: "/anthropic-skills:skill-creator", desc: "Create new custom skills", installCmd: "/plugin install skill-creator@claude-plugins-official" },
+      { name: "Design Review", cmd: "/anthropic-skills:design-review", desc: "Run a structured design review" },
+    ]
+  },
+  {
+    category: "Design Research",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install design-research"
+    },
+    skills: [
+      { name: "Synthesize", cmd: "/design-research:synthesize", desc: "Synthesize research findings into insights" },
+      { name: "Interview", cmd: "/design-research:interview", desc: "Conduct or structure user interviews" },
+      { name: "Test Plan", cmd: "/design-research:test-plan", desc: "Create a usability test plan" },
+      { name: "Discover", cmd: "/design-research:discover", desc: "Run a discovery phase for a design problem" },
+      { name: "User Persona", cmd: "/design-research:user-persona", desc: "Build detailed user personas" },
+      { name: "Usability Test Plan", cmd: "/design-research:usability-test-plan", desc: "Draft a usability testing plan" },
+      { name: "Card Sort Analysis", cmd: "/design-research:card-sort-analysis", desc: "Analyze results from a card sorting exercise" },
+      { name: "Journey Map", cmd: "/design-research:journey-map", desc: "Create a user journey map" },
+      { name: "Diary Study Plan", cmd: "/design-research:diary-study-plan", desc: "Plan a longitudinal diary study" },
+      { name: "Interview Script", cmd: "/design-research:interview-script", desc: "Write a structured interview script" },
+      { name: "Summarize Interview", cmd: "/design-research:summarize-interview", desc: "Summarize and extract key themes from an interview" },
+      { name: "Affinity Diagram", cmd: "/design-research:affinity-diagram", desc: "Organize research data into an affinity diagram" },
+      { name: "Jobs to Be Done", cmd: "/design-research:jobs-to-be-done", desc: "Frame user needs using the JTBD framework" },
+      { name: "Empathy Map", cmd: "/design-research:empathy-map", desc: "Build an empathy map for a user segment" },
+    ]
+  },
+  {
+    category: "Design Systems",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install design-systems"
+    },
+    skills: [
+      { name: "Tokenize", cmd: "/design-systems:tokenize", desc: "Convert design values into design tokens" },
+      { name: "Audit System", cmd: "/design-systems:audit-system", desc: "Audit an existing design system for gaps or inconsistencies" },
+      { name: "Create Component", cmd: "/design-systems:create-component", desc: "Spec and scaffold a new design system component" },
+      { name: "Design Token", cmd: "/design-systems:design-token", desc: "Define or document a design token" },
+      { name: "Theming System", cmd: "/design-systems:theming-system", desc: "Plan a multi-theme or dark mode system" },
+      { name: "Component Spec", cmd: "/design-systems:component-spec", desc: "Write a detailed component specification" },
+      { name: "Naming Convention", cmd: "/design-systems:naming-convention", desc: "Establish naming conventions for tokens, components, or files" },
+      { name: "Pattern Library", cmd: "/design-systems:pattern-library", desc: "Build or document a pattern library" },
+      { name: "Documentation Template", cmd: "/design-systems:documentation-template", desc: "Create a documentation template for design system components" },
+      { name: "Icon System", cmd: "/design-systems:icon-system", desc: "Design or audit an icon system" },
+      { name: "Accessibility Audit", cmd: "/design-systems:accessibility-audit", desc: "Audit the design system for accessibility compliance" },
+    ]
+  },
+  {
+    category: "UX Strategy",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install ux-strategy"
+    },
+    skills: [
+      { name: "Strategize", cmd: "/ux-strategy:strategize", desc: "Define a high-level UX strategy" },
+      { name: "Benchmark", cmd: "/ux-strategy:benchmark", desc: "Run a competitive or baseline benchmarking exercise" },
+      { name: "Frame Problem", cmd: "/ux-strategy:frame-problem", desc: "Frame and articulate the core design problem" },
+      { name: "Design Principles", cmd: "/ux-strategy:design-principles", desc: "Define guiding design principles" },
+      { name: "Design Brief", cmd: "/ux-strategy:design-brief", desc: "Write a structured design brief" },
+      { name: "Competitive Analysis", cmd: "/ux-strategy:competitive-analysis", desc: "Conduct a competitive analysis" },
+      { name: "Opportunity Framework", cmd: "/ux-strategy:opportunity-framework", desc: "Map and prioritize design opportunities" },
+      { name: "North Star Vision", cmd: "/ux-strategy:north-star-vision", desc: "Articulate a north star vision for the experience" },
+      { name: "Experience Map", cmd: "/ux-strategy:experience-map", desc: "Create a high-level experience map" },
+      { name: "Metrics Definition", cmd: "/ux-strategy:metrics-definition", desc: "Define success metrics for a design initiative" },
+      { name: "Stakeholder Alignment", cmd: "/ux-strategy:stakeholder-alignment", desc: "Plan and facilitate stakeholder alignment" },
+    ]
+  },
+  {
+    category: "UI Design",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install ui-design"
+    },
+    skills: [
+      { name: "Type System", cmd: "/ui-design:type-system", desc: "Design a typography system" },
+      { name: "Color Palette", cmd: "/ui-design:color-palette", desc: "Build a color palette" },
+      { name: "Responsive Audit", cmd: "/ui-design:responsive-audit", desc: "Audit a UI for responsive design issues" },
+      { name: "Design Screen", cmd: "/ui-design:design-screen", desc: "Design a specific screen or UI view" },
+      { name: "Layout Grid", cmd: "/ui-design:layout-grid", desc: "Define a layout grid system" },
+      { name: "Illustration Style", cmd: "/ui-design:illustration-style", desc: "Define an illustration style guide" },
+      { name: "Visual Hierarchy", cmd: "/ui-design:visual-hierarchy", desc: "Analyze and improve visual hierarchy" },
+      { name: "Typography Scale", cmd: "/ui-design:typography-scale", desc: "Build a modular typography scale" },
+      { name: "Color System", cmd: "/ui-design:color-system", desc: "Design a complete color system with semantic tokens" },
+      { name: "Data Visualization", cmd: "/ui-design:data-visualization", desc: "Design data visualization components or guidelines" },
+      { name: "Spacing System", cmd: "/ui-design:spacing-system", desc: "Define a spacing and density system" },
+      { name: "Responsive Design", cmd: "/ui-design:responsive-design", desc: "Plan responsive breakpoints and layouts" },
+      { name: "Dark Mode Design", cmd: "/ui-design:dark-mode-design", desc: "Adapt a UI for dark mode" },
+    ]
+  },
+  {
+    category: "Interaction Design",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install interaction-design"
+    },
+    skills: [
+      { name: "Error Flow", cmd: "/interaction-design:error-flow", desc: "Map and design error states and recovery flows" },
+      { name: "Design Interaction", cmd: "/interaction-design:design-interaction", desc: "Design a specific interaction or micro-interaction" },
+      { name: "Map States", cmd: "/interaction-design:map-states", desc: "Map all UI states for a component or flow" },
+      { name: "Animation Principles", cmd: "/interaction-design:animation-principles", desc: "Define animation and motion principles" },
+      { name: "Gesture Patterns", cmd: "/interaction-design:gesture-patterns", desc: "Design or document gesture-based interactions" },
+      { name: "Micro-Interaction Spec", cmd: "/interaction-design:micro-interaction-spec", desc: "Spec a micro-interaction in detail" },
+      { name: "Error Handling UX", cmd: "/interaction-design:error-handling-ux", desc: "Design the full error handling UX for a feature" },
+      { name: "Loading States", cmd: "/interaction-design:loading-states", desc: "Design loading and skeleton states" },
+      { name: "State Machine", cmd: "/interaction-design:state-machine", desc: "Model a UI as a state machine" },
+      { name: "Feedback Patterns", cmd: "/interaction-design:feedback-patterns", desc: "Design feedback and confirmation patterns" },
+    ]
+  },
+  {
+    category: "Prototyping & Testing",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install prototyping-testing"
+    },
+    skills: [
+      { name: "Prototype Plan", cmd: "/prototyping-testing:prototype-plan", desc: "Plan what to prototype and how" },
+      { name: "Experiment", cmd: "/prototyping-testing:experiment", desc: "Design and run a design experiment" },
+      { name: "Evaluate", cmd: "/prototyping-testing:evaluate", desc: "Evaluate a prototype or design decision" },
+      { name: "Test Plan", cmd: "/prototyping-testing:test-plan", desc: "Write a research or usability test plan" },
+      { name: "Test Scenario", cmd: "/prototyping-testing:test-scenario", desc: "Write specific test scenarios for user testing" },
+      { name: "Wireframe Spec", cmd: "/prototyping-testing:wireframe-spec", desc: "Create a wireframe specification document" },
+      { name: "Accessibility Test Plan", cmd: "/prototyping-testing:accessibility-test-plan", desc: "Plan accessibility testing for a feature" },
+      { name: "User Flow Diagram", cmd: "/prototyping-testing:user-flow-diagram", desc: "Map out a user flow diagram" },
+      { name: "A/B Test Design", cmd: "/prototyping-testing:a-b-test-design", desc: "Design an A/B test for a UX hypothesis" },
+      { name: "Click Test Plan", cmd: "/prototyping-testing:click-test-plan", desc: "Plan a first-click or click test" },
+      { name: "Prototype Strategy", cmd: "/prototyping-testing:prototype-strategy", desc: "Define the overall prototyping strategy" },
+      { name: "Heuristic Evaluation", cmd: "/prototyping-testing:heuristic-evaluation", desc: "Run a heuristic evaluation of a UI" },
+    ]
+  },
+  {
+    category: "Design Ops",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install design-ops"
+    },
+    skills: [
+      { name: "Plan Sprint", cmd: "/design-ops:plan-sprint", desc: "Plan a design sprint" },
+      { name: "Setup Workflow", cmd: "/design-ops:setup-workflow", desc: "Set up a team design workflow" },
+      { name: "Handoff", cmd: "/design-ops:handoff", desc: "Prepare design handoff documentation" },
+      { name: "Team Workflow", cmd: "/design-ops:team-workflow", desc: "Document or improve team design workflows" },
+      { name: "Design QA Checklist", cmd: "/design-ops:design-qa-checklist", desc: "Create a design QA checklist" },
+      { name: "Version Control Strategy", cmd: "/design-ops:version-control-strategy", desc: "Plan version control for design files" },
+      { name: "Design Review Process", cmd: "/design-ops:design-review-process", desc: "Define a design review process" },
+      { name: "Design Sprint Plan", cmd: "/design-ops:design-sprint-plan", desc: "Plan a full design sprint" },
+      { name: "Handoff Spec", cmd: "/design-ops:handoff-spec", desc: "Write a developer handoff specification" },
+      { name: "Design Critique", cmd: "/design-ops:design-critique", desc: "Run a structured design critique session" },
+    ]
+  },
+  {
+    category: "Designer Toolkit",
+    source: {
+      type: "github",
+      label: "Owl-Listener/designer-skills",
+      url: "https://github.com/Owl-Listener/designer-skills",
+      installCmd: "/plugin marketplace add Owl-Listener/designer-skills",
+      note: "Then open /plugin > Discover and install designer-toolkit"
+    },
+    skills: [
+      { name: "Write Case Study", cmd: "/designer-toolkit:write-case-study", desc: "Write a portfolio case study" },
+      { name: "Write Rationale", cmd: "/designer-toolkit:write-rationale", desc: "Write a design rationale document" },
+      { name: "Build Presentation", cmd: "/designer-toolkit:build-presentation", desc: "Build a design presentation" },
+      { name: "Design Rationale", cmd: "/designer-toolkit:design-rationale", desc: "Document decision-making rationale for a design" },
+      { name: "Presentation Deck", cmd: "/designer-toolkit:presentation-deck", desc: "Create a structured presentation deck" },
+      { name: "Case Study", cmd: "/designer-toolkit:case-study", desc: "Build a full design case study" },
+      { name: "Design System Adoption", cmd: "/designer-toolkit:design-system-adoption", desc: "Plan or track design system adoption" },
+      { name: "Design Token Audit", cmd: "/designer-toolkit:design-token-audit", desc: "Audit existing design tokens for issues" },
+      { name: "UX Writing", cmd: "/designer-toolkit:ux-writing", desc: "Write or improve UX copy and microcopy" },
+    ]
+  },
+  {
+    category: "Standalone Design",
+    source: {
+      type: "plugin",
+      label: "Official plugin + local skills",
+      installCmd: "/plugin install frontend-design@claude-plugins-official",
+      note: "frontend-design is an official plugin; other skills in this pack are local to this project"
+    },
+    skills: [
+      { name: "Design Brief", cmd: "/design-brief", desc: "Create a design brief through an interactive interview and codebase exploration" },
+      { name: "Brief to Tasks", cmd: "/brief-to-tasks", desc: "Break a design brief into an ordered checklist of independently buildable tasks" },
+      { name: "Design Tokens", cmd: "/design-tokens", desc: "Generate a design tokens file (CSS variables or Tailwind) with light/dark palettes, spacing, and type ramp" },
+      { name: "Design Flow", cmd: "/design-flow", desc: "Run the full design-to-build workflow as a guided sequence — orchestrates all designer skills in order" },
+      { name: "Frontend Design", cmd: "/frontend-design", desc: "Build distinctive, production-grade frontend interfaces guided by named aesthetic philosophies", installCmd: "/plugin install frontend-design@claude-plugins-official" },
+      { name: "Design Review", cmd: "/design-review", desc: "Run a structured design critique against the brief and codebase — visual hierarchy, consistency, accessibility" },
+      { name: "Grill Me", cmd: "/grill-me", desc: "Get interviewed relentlessly about a design plan until all decisions are stress-tested" },
+      { name: "Information Architecture", cmd: "/information-architecture", desc: "Define navigation, content hierarchy, page structure, and user flows before visual design begins" },
+      { name: "Design Notebook", cmd: "/design-notebook", desc: "Scaffold a design iteration notebook for rapid, intent-driven UI variation — filmstrip history, side-by-side comparisons, live React prototypes" },
+    ]
+  },
+  {
+    category: "figma-use",
+    source: {
+      type: "github",
+      label: "dannote/figma-use",
+      url: "https://github.com/dannote/figma-use",
+      note: "Place figma-use.md in ~/.claude/skills/ to install"
+    },
+    skills: [
+      { name: "figma-use", cmd: "/figma-use", desc: "Control Figma via CLI — create shapes, frames, text, components, set styles, layout, variables, export images. Two modes: commands and JSX." },
+    ]
+  }
+];
+
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast("Copied!"));
+}
+
+function totalSkills() {
+  return data.reduce((n, d) => n + d.skills.length, 0);
+}
+
+const tabs = ["All", ...data.map(d => d.category)];
+let activeTab = "All";
+let searchQuery = "";
+
+function buildSourceRow(source) {
+  if (!source) return "";
+
+  const labelMap = { builtin: "Built-in", plugin: "Official plugin", github: "GitHub", local: "Local" };
+  const badge = `<span class="source-badge ${source.type}">${labelMap[source.type] || source.type}</span>`;
+
+  let installBtn = "";
+  if (source.installCmd) {
+    installBtn = `<div class="install-cmd" data-copy="${source.installCmd}" title="Click to copy install command">
+      ${COPY_ICON}<code>${source.installCmd}</code>
+    </div>`;
+  }
+
+  let ghLink = "";
+  if (source.url) {
+    ghLink = `<a href="${source.url}" target="_blank" class="gh-link">${GH_ICON} ${source.label}</a>`;
+  } else if (source.label && source.type === "builtin") {
+    // no link for built-in
+  }
+
+  return `<div class="install-row">${badge}${installBtn}${ghLink}</div>`;
+}
+
+function render() {
+  const board = document.getElementById("board");
+  const empty = document.getElementById("empty");
+  const stats = document.getElementById("stats");
+  board.innerHTML = "";
+
+  const q = searchQuery.toLowerCase();
+  let shown = 0;
+
+  data.forEach(section => {
+    if (activeTab !== "All" && activeTab !== section.category) return;
+
+    const filtered = section.skills.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.cmd.toLowerCase().includes(q) ||
+      s.desc.toLowerCase().includes(q)
+    );
+
+    if (!filtered.length) return;
+    shown += filtered.length;
+
+    const sec = document.createElement("div");
+    sec.className = "section";
+
+    sec.innerHTML = `
+      <div class="section-header">
+        <h2>${section.category}</h2>
+        <span class="section-count">${filtered.length}</span>
+        ${buildSourceRow(section.source)}
+      </div>
+      <div class="grid"></div>
+    `;
+
+    // wire copy on install-cmd buttons inside this section
+    sec.querySelectorAll(".install-cmd").forEach(btn => {
+      btn.addEventListener("click", () => copyText(btn.dataset.copy));
+    });
+
+    const grid = sec.querySelector(".grid");
+    filtered.forEach(skill => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const ghSection = skill.gh
+        ? `<div class="card-gh"><a href="${skill.gh}" target="_blank">${GH_ICON} View on GitHub</a></div>`
+        : "";
+
+      const installSection = skill.installCmd
+        ? `<div class="card-gh"><span class="card-cmd" data-copy="${skill.installCmd}" title="Copy install command" style="color:var(--green);background:var(--green-soft)">${skill.installCmd}</span></div>`
+        : "";
+
+      card.innerHTML = `
+        <div class="card-name">${skill.name}</div>
+        <div class="card-cmd" title="Click to copy">${skill.cmd}</div>
+        <div class="card-desc">${skill.desc}</div>
+        ${installSection}
+        ${ghSection}
+      `;
+
+      card.querySelectorAll(".card-cmd").forEach(el => {
+        el.addEventListener("click", () => copyText(el.textContent.trim()));
+      });
+
+      grid.appendChild(card);
+    });
+
+    board.appendChild(sec);
+  });
+
+  const total = totalSkills();
+  stats.innerHTML = shown === total
+    ? `<span>${total}</span> skills across ${data.length} categories`
+    : `Showing <span>${shown}</span> of ${total} skills`;
+
+  empty.classList.toggle("hidden", shown > 0);
+  board.classList.toggle("hidden", shown === 0);
+}
+
+function buildTabs() {
+  const container = document.getElementById("tabs");
+  tabs.forEach(label => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (label === "All" ? " active" : "");
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      activeTab = label;
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    });
+    container.appendChild(btn);
+  });
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value;
+  render();
+});
+
+buildTabs();
+render();
+</script>
+</body>
+</html>
